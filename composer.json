@@ -1,10 +1,10 @@
 {
-    "name": "viewpoint/viewpoint-api",
-    "description": "Tools to call external API.",
+    "name": "viewpoint/viewpoint-synced-posts",
+    "description": "Tools to sync data with a WordPress custom post type.",
     "type": "library",
     "autoload": {
         "psr-4": {
-            "Viewpoint\\ViewpointApi\\": "src/"
+            "Viewpoint\\ViewpointSyncedPosts\\": "src/"
         }
     },
     "authors": [
