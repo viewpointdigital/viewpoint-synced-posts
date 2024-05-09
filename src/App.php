@@ -26,6 +26,7 @@ class App {
 		public bool $debug = false
 	) {
 		$this->initialize_args( $args, $taxonomies );
+		$this->initialize_admin_page();
 		add_action( 'init', [ $this, 'register' ] );
 	}
 
@@ -89,5 +90,9 @@ class App {
 				$tax_args
 			);
 		}
+	}
+
+	public function initialize_admin_page() {
+		return new Admin( $this->post_type . ' ' . __( 'Sync', 'viewpoint' ) );
 	}
 }
