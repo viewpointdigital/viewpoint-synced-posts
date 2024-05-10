@@ -4,12 +4,40 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "952ede2efe4ba2d9590f4d63b3fc2216",
-    "packages": [],
+    "content-hash": "90a0dd97a56f209202818e321edbf183",
+    "packages": [
+        {
+            "name": "viewpoint/viewpoint-logger",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://jeremylind@bitbucket.org/viewpointdigital/viewpoint-logger.git",
+                "reference": "c478d330991d0f5f3737e601ee0bbad8ecae9851"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Viewpoint\\ViewpointLogger\\": "src/",
+                    "Viewpoint\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Jeremy Lind",
+                    "email": "jeremy@viewpointdigital.ca"
+                }
+            ],
+            "description": "Tools to log.",
+            "time": "2024-05-09T22:13:55+00:00"
+        }
+    ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "viewpoint/viewpoint-logger": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

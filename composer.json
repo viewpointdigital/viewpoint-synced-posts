@@ -13,5 +13,13 @@
             "email": "jeremy@viewpointdigital.ca"
         }
     ],
-    "require": {}
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://jeremylind@bitbucket.org/viewpointdigital/viewpoint-logger.git"
+        }
+    ],
+    "require": {
+        "viewpoint/viewpoint-logger": "dev-main"
+    }
 }

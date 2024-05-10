@@ -7,6 +7,8 @@
 
 namespace Viewpoint\ViewpointSyncedPosts;
 
+use Viewpoint\ViewpointApi\Endpoint;
+
 /**
  * Define App.
  */
@@ -42,11 +44,12 @@ class App {
 		$this->args = wp_parse_args(
 			$args,
 			[
-				'public'  => $this->debug,
-				'rewrite' => [
+				'public'   => $this->debug,
+				'rewrite'  => [
 					'with_front' => false,
 				],
-				'label'   => ucwords( str_replace( [ '_', '-' ], ' ', $this->post_type ) ),
+				'label'    => ucwords( str_replace( [ '_', '-' ], ' ', $this->post_type ) ),
+				'supports' => [ 'title', 'editor', 'custom-fields', 'thumbnail' ],
 			]
 		);
 		// Set up taxonomies and tax args.
@@ -94,5 +97,16 @@ class App {
 
 	public function initialize_admin_page() {
 		return new Admin( $this->post_type . ' ' . __( 'Sync', 'viewpoint' ) );
+	}
+
+	public function sync( Endpoint $endpoint, $map ) {
+		$src_posts  = $endpoint->request( 'get' )->format( 'json', 'data' );
+		$dest_posts = get_posts(
+			[
+				'post_type' => $this->post_type,
+				'status'    => 'any',
+			]
+		);
+		$sync       = new Sync( $src_posts, $dest_posts, $map );
 	}
 }
