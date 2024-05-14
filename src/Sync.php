@@ -1,113 +1,34 @@
 <?php
 /**
- * Sync task.
- *
+ * Sync
+ * 
  * @package Viewpoint\ViewpointSyncedPosts
  */
 
 namespace Viewpoint\ViewpointSyncedPosts;
 
-/**
- * Sync task.
- */
+use Viewpoint\ViewpointApi\Endpoint;
+
 class Sync {
-	/**
-	 * Mapped post ids: src_id => dest_id.
-	 *
-	 * @var array
-	 */
-	public $mapped_posts = [];
-
-	/**
-	 * Sync status.
-	 *
-	 * @var array
-	 */
-	public $status = [
-		'deleted' => 0,
-		'created' => 0,
-		'updated' => 0,
-	];
-	/**
-	 * Undocumented function
-	 *
-	 * @param array $src_posts  Source post data.
-	 * @param int[] $dest_posts Destination posts.
-	 * @param Map   $map        Field mapping.
-	 */
-	public function __construct( public $src_posts = [], public $dest_posts = [], public Map $map ) {
-		$this->mapped_posts = $this->setup_ids();
-		$this->sync();
+	public function __construct( private string $post_type, private Endpoint $endpoint, private Map $map ) {
 	}
 
-	/**
-	 * Sync posts.
-	 *
-	 * @return void
-	 */
-	private function sync() {
-		$this->delete_posts();
-		$this->update_posts();
+	public function startSyncTask() {
+		return new SyncTask( $this->setSrcPosts(), $this->setDestPosts(), $this->map );
 	}
 
-	/**
-	 * Map src ids to dest ids.
-	 *
-	 * @return array
-	 */
-	private function setup_ids() {
-		$mapped_posts = [];
-		foreach ( $this->dest_posts as $id ) {
-			$src_id = get_post_meta( $id, $this->map->src_id, true );
-			if ( $src_id ) {
-				$mapped_posts[ $src_id ] = $id;
-			} else {
-				// If it is not mapped to a src post, delete it.
-				Post::delete( $id );
-			}
-		}
-		return $mapped_posts;
+	private function setSrcPosts() {
+		return $this->endpoint->request( 'get' )->format( 'json', 'data' );
 	}
 
-	/**
-	 * Delete posts that are no longer in src.
-	 *
-	 * @return void
-	 */
-	private function delete_posts() {
-		foreach ( $this->mapped_posts as $src_id => $dest_id ) {
-			if ( ! in_array( $src_id, wp_list_pluck( $this->src_posts, $this->map->src_id ) ) ) {
-				$success = Post::delete( $dest_id );
-				if ( $success ) {
-					++$this->status['deleted'];
-				}
-			}
-		}
-	}
-
-	/**
-	 * Update posts that are non-existant or outdated.
-	 *
-	 * @return void
-	 */
-	private function update_posts() {
-		foreach ( $this->src_posts as $src_post ) {
-			$dest_id   = $this->mapped_posts[ $src_post->{$this->map->src_id} ];
-			$dest_date = get_post_meta( $dest_id, $this->map->post_modified, true );
-			if ( ! $dest_date ) {
-				$success = Post::create( $src_post, $this->map );
-				if ( $success ) {
-					++$this->status['created'];
-				}
-				continue;
-			}
-			$src_date = $src_post->{$this->map->post_modified};
-			if ( strtotime( $src_date ) > strtotime( $dest_date ) ) {
-				$success = Post::update( $dest_id, $src_post, $this->map );
-				if ( $success ) {
-					++$this->status['updated'];
-				}
-			}
-		}
+	private function setDestPosts() {
+		return get_posts(
+			[
+				'post_type'   => $this->post_type,
+				'post_status' => 'any',
+				'numberposts' => -1,
+				'fields'      => 'ids',
+			]
+		);
 	}
 }

@@ -4,8 +4,35 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "90a0dd97a56f209202818e321edbf183",
+    "content-hash": "5790be9be180752d5fab6f8de300247b",
     "packages": [
+        {
+            "name": "viewpoint/viewpoint-api",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://jeremylind@bitbucket.org/viewpointdigital/viewpoint-api.git",
+                "reference": "2b08b080a680bcdfd46ba35acd924cfbdb4de566"
+            },
+            "require": {
+                "viewpoint/viewpoint-logger": "dev-main"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Viewpoint\\ViewpointApi\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Jeremy Lind",
+                    "email": "jeremy@viewpointdigital.ca"
+                }
+            ],
+            "description": "Tools to call external API.",
+            "time": "2024-05-09T21:29:45+00:00"
+        },
         {
             "name": "viewpoint/viewpoint-logger",
             "version": "dev-main",
@@ -36,7 +63,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "viewpoint/viewpoint-logger": 20
+        "viewpoint/viewpoint-logger": 20,
+        "viewpoint/viewpoint-api": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

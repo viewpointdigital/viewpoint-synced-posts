@@ -43,6 +43,7 @@ class Post {
 			'post_type'    => $map->post_type,
 			'post_title'   => $post_data->{$map->post_title},
 			'post_content' => $post_data->{$map->post_content},
+			'post_status'  => 'publish',
 		];
 
 		$args['meta_input'] = [

@@ -16,13 +16,12 @@ class Admin {
 	 *
 	 * @param string $name Namespace.
 	 */
-	public function __construct( public string $name ) {
+	public function __construct( private string $name ) {
 		if ( ! function_exists( 'acf_add_options_page' ) ) {
 			return;
 		}
 
 		$this->init_settings();
-		$this->init_migration();
 	}
 
 	/**
@@ -75,19 +74,20 @@ class Admin {
 	/**
 	 * Initialize a migration.
 	 *
+	 * @param Sync $sync Sync.
 	 * @return void
 	 */
-	private function init_migration() {
+	public function init_migration( $sync ) {
 		add_action(
 			'admin_init',
-			function () {
+			function () use ( $sync ) {
 				if ( ! current_user_can( 'manage_options' ) && ( ! wp_doing_ajax() ) ) {
 					wp_die( esc_html__( 'You are not allowed to access this part of the site' ) );
 				}
 
 				$nonce = isset( $_GET[ sanitize_title( $this->name ) . '-nonce' ] ) ? wp_unslash( $_GET[ sanitize_title( $this->name ) . '-nonce' ] ) : false;
-				if ( ! wp_verify_nonce( $nonce, sanitize_title( $this->name ) ) ) {
-					return;
+				if ( wp_verify_nonce( $nonce, sanitize_title( $this->name ) ) ) {
+					return $sync->startSyncTask();
 				}
 			},
 			0
