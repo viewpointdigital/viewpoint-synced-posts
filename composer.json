@@ -3,6 +3,7 @@
     "description": "Tools to sync data with a WordPress custom post type.",
     "type": "library",
     "autoload": {
+        "files": ["woocommerce/action-scheduler/action-scheduler.php"],
         "psr-4": {
             "Viewpoint\\ViewpointSyncedPosts\\": "src/"
         }
@@ -25,6 +26,7 @@
     ],
     "require": {
         "viewpoint/viewpoint-logger": "dev-main",
-        "viewpoint/viewpoint-api": "dev-main"
+        "viewpoint/viewpoint-api": "dev-main",
+        "woocommerce/action-scheduler": "^3.7"
     }
 }

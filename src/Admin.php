@@ -79,24 +79,36 @@ class Admin {
 	 */
 	public function init_sync_triggers( $sync ) {
 		add_action(
-			'admin_init',
+			'viewpoint_synced_posts_sync',
 			function () use ( $sync ) {
-				if ( ! current_user_can( 'manage_options' ) && ( ! wp_doing_ajax() ) ) {
-					wp_die( esc_html__( 'You are not allowed to access this part of the site' ) );
-				}
-
-				$nonce_title = sanitize_title( $this->name ) . '-nonce';
-				if (
-					isset( $_GET[ $nonce_title ] )
-					&&
-					wp_verify_nonce( sanitize_key( $_GET[ $nonce_title ] ), sanitize_title( $this->name ) )
-				) {
-					$syncTask = $sync->start_sync_task();
-					$this->render_status( $syncTask->status );
-				}
-			},
-			0
+				$syncTask = $sync->start_sync_task();
+				$this->render_status( $syncTask->status );
+			}
 		);
+
+		add_action( 'admin_init', [ $this, 'manual_sync' ] );
+		add_action( 'init', [ $this, 'schedule_sync' ] );
+	}
+
+	public function schedule_sync() {
+		if ( false === as_has_scheduled_action( 'viewpoint_synced_posts_sync' ) ) {
+			as_schedule_recurring_action( strtotime( 'today' ), MINUTE_IN_SECONDS, 'viewpoint_synced_posts_sync', array(), '', true );
+		}
+	}
+
+	public function manual_sync() {
+		if ( ! current_user_can( 'manage_options' ) && ( ! wp_doing_ajax() ) ) {
+			wp_die( esc_html__( 'You are not allowed to access this part of the site' ) );
+		}
+
+		$nonce_title = sanitize_title( $this->name ) . '-nonce';
+		if (
+			isset( $_GET[ $nonce_title ] )
+			&&
+			wp_verify_nonce( sanitize_key( $_GET[ $nonce_title ] ), sanitize_title( $this->name ) )
+		) {
+			do_action( 'viewpoint_synced_posts_sync' );
+		}
 	}
 
 	/**
