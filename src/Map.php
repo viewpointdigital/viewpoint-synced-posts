@@ -44,7 +44,7 @@ class Map extends Singleton {
 	public function get( string $field, object $post_data ) {
 		$field_key = $this->get_field_key( $field );
 
-		// If a nested value.
+		// If a nested value defined by .
 		if ( str_contains( $field_key, '.' ) ) {
 			$field_keys = explode( '.', $field_key );
 			return $post_data->{$field_keys[0]}->{$field_keys[1]};

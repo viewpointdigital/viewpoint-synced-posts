@@ -77,7 +77,7 @@ class Admin {
 	 * @param Sync $sync Sync.
 	 * @return void
 	 */
-	public function init_migration( $sync ) {
+	public function init_sync_triggers( $sync ) {
 		add_action(
 			'admin_init',
 			function () use ( $sync ) {
