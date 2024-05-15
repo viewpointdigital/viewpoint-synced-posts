@@ -29,7 +29,6 @@ class CustomPostType {
 		add_action( 'init', [ $this, 'register' ] );
 	}
 
-
 	/**
 	 * Initialize args for post types and taxonomies with some defaults.
 	 *
@@ -60,13 +59,15 @@ class CustomPostType {
 			$tax_args                      = wp_parse_args(
 				$tax_args,
 				[
-					'object_type' => $this->post_type,
-					'public'      => $this->debug,
-					'rewrite'     => [
+					'object_type'        => $this->post_type,
+					'public'             => $this->debug,
+					'rewrite'            => [
 						'with_front' => false,
 						'slug'       => str_replace( '_', '-', $taxonomy ),
 					],
-					'label'       => ucwords( str_replace( [ '_', '-' ], ' ', $taxonomy ) ),
+					'show_admin_column'  => $this->debug,
+					'show_in_quick_edit' => $this->debug,
+					'label'              => ucwords( str_replace( [ '_', '-' ], ' ', $taxonomy ) ),
 				]
 			);
 			$this->taxonomies[ $taxonomy ] = $tax_args;

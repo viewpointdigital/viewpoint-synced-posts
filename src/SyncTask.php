@@ -27,6 +27,7 @@ class SyncTask {
 		'deleted' => 0,
 		'created' => 0,
 		'updated' => 0,
+		'skipped' => 0,
 	];
 	/**
 	 * Undocumented function
@@ -92,7 +93,7 @@ class SyncTask {
 	 */
 	private function update_posts() {
 		foreach ( $this->src_posts as $src_post ) {
-			$dest_id = $this->mapped_posts[ $src_post->{$this->map->src_id} ];
+			$dest_id = array_key_exists( $this->map->get( 'src_id', $src_post ), $this->mapped_posts ) ? $this->mapped_posts[ $this->map->get( 'src_id', $src_post ) ] : false;
 			if ( ! $dest_id ) {
 				$success = Post::create( $src_post, $this->map );
 				if ( $success ) {
@@ -106,8 +107,10 @@ class SyncTask {
 				$success = Post::update( $dest_id, $src_post, $this->map );
 				if ( $success ) {
 					++$this->status['updated'];
+					continue;
 				}
 			}
+			++$this->status['skipped'];
 		}
 	}
 }

@@ -7,6 +7,9 @@
 
 namespace Viewpoint\ViewpointSyncedPosts;
 
+/**
+ * Post operations.
+ */
 class Post {
 	/**
 	 * Delete a post.
@@ -41,29 +44,21 @@ class Post {
 		$args = [
 			'ID'           => $post_id,
 			'post_type'    => $map->post_type,
-			'post_title'   => $post_data->{$map->post_title},
-			'post_content' => $post_data->{$map->post_content},
+			'post_title'   => $map->get( 'post_title', $post_data ),
+			'post_content' => $map->get( 'post_content', $post_data ),
 			'post_status'  => 'publish',
 		];
 
 		$args['meta_input'] = [
-			'src_id' => $post_data->{$map->src_id},
+			'src_id' => $map->get( 'src_id', $post_data ),
 		];
 		foreach ( $map->post_meta as $dest_key => $src_key ) {
-			$args['meta_input'][ $dest_key ] = $post_data->{$src_key};
+			$args['meta_input'][ $dest_key ] = $map->get( $dest_key, $post_data );
 		}
 
 		$args['tax_input'] = [];
 		foreach ( $map->taxonomies as $dest_key => $src_key ) {
-			$tax_value = $post_data->{$src_key};
-
-			// If a nested value.
-			if ( str_contains( $src_key, '.' ) ) {
-				$tax_value  = [];
-				$tax_fields = explode( '.', $src_key );
-				$tax_value  = wp_list_pluck( $post_data->{$tax_fields[0]}, $tax_fields[1] );
-			}
-
+			$tax_value = $map->get( $dest_key, $post_data );
 			$args['tax_input'][ $dest_key ] = $tax_value;
 		}
 

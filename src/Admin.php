@@ -49,12 +49,12 @@ class Admin {
 		add_action(
 			'settings_page_' . sanitize_title( $this->name ),
 			function () {
-				$page = ! empty( $_GET['page'] ) ? wp_unslash( $_GET['page'] ) : '';
+				$page = ! empty( $_GET['page'] ) ? wp_unslash( sanitize_key( $_GET['page'] ) ) : '';
 				$url  = admin_url( 'options-general.php?page=' . $page );
 				$url  = wp_nonce_url( $url, sanitize_title( $this->name ), sanitize_title( $this->name ) . '-nonce' );
 				ob_start();
 				?>
-				<p><?php esc_html_e( 'Running the migration will overwrite data in the database. Please review field settings, save settings, and ensure you have a database backup available before running the migration.' ); ?></p>
+				<p><?php esc_html_e( 'Running the sync may overwrite data in the database. Please ensure you have a database backup available before running the sync.' ); ?></p>
 				<a href="<?php echo esc_url( $url ); ?>" class="button button-primary button-large">
 					<?php
 					printf(
@@ -85,12 +85,31 @@ class Admin {
 					wp_die( esc_html__( 'You are not allowed to access this part of the site' ) );
 				}
 
-				$nonce = isset( $_GET[ sanitize_title( $this->name ) . '-nonce' ] ) ? wp_unslash( $_GET[ sanitize_title( $this->name ) . '-nonce' ] ) : false;
-				if ( wp_verify_nonce( $nonce, sanitize_title( $this->name ) ) ) {
-					return $sync->startSyncTask();
+				$nonce_title = sanitize_title( $this->name ) . '-nonce';
+				if (
+					isset( $_GET[ $nonce_title ] )
+					&&
+					wp_verify_nonce( sanitize_key( $_GET[ $nonce_title ] ), sanitize_title( $this->name ) )
+				) {
+					$syncTask = $sync->start_sync_task();
+					$this->render_status( $syncTask->status );
 				}
 			},
 			0
 		);
+	}
+
+	/**
+	 * Display the admin status notice.
+	 *
+	 * @param array $status Status counts.
+	 * @return void
+	 */
+	private function render_status( $status ) {
+		?>
+		<div class="notice notice-success is-dismissible">
+			<p><?php echo esc_html( sprintf( '%d posts successfully created, %d posts successfully  updated, %d posts successfully deleted, %d posts skipped.', $status['created'], $status['updated'], $status['deleted'], $status['skipped'] ) ); ?></p>
+		</div>
+		<?php
 	}
 }
