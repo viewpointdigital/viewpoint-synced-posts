@@ -17,7 +17,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://jeremylind@bitbucket.org/viewpointdigital/viewpoint-logger.git"
+            "url": "https://jeremylind@bitbucket.org/viewpointdigital/viewpoint-utilities.git"
         },
         {
             "type": "vcs",
@@ -25,7 +25,7 @@
         }
     ],
     "require": {
-        "viewpoint/viewpoint-logger": "dev-main",
+        "viewpoint/viewpoint-utilities": "dev-main",
         "viewpoint/viewpoint-api": "dev-main",
         "woocommerce/action-scheduler": "^3.7"
     }
