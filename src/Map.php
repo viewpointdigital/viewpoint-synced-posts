@@ -7,7 +7,7 @@
 
 namespace Viewpoint\ViewpointSyncedPosts;
 
-use Viewpoint\Singleton;
+use Viewpoint\Utilities\Singleton;
 
 /**
  * Map dest fields to src fields.
