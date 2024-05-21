@@ -7,6 +7,8 @@
 
 namespace Viewpoint\ViewpointSyncedPosts;
 
+use Viewpoint\Utilities\Logger;
+
 /**
  * Register admin page.
  */
@@ -15,8 +17,9 @@ class Admin {
 	 * Init.
 	 *
 	 * @param string $name Namespace.
+	 * @param bool $debug Debug.
 	 */
-	public function __construct( private string $name ) {
+	public function __construct( private string $name, private bool $debug = false ) {
 		if ( ! function_exists( 'acf_add_options_page' ) ) {
 			return;
 		}
@@ -83,11 +86,15 @@ class Admin {
 	 * @return void
 	 */
 	public function init_sync_triggers( $sync ) {
+		// Do this action to sync.
 		add_action(
 			'viewpoint_' . sanitize_title( $this->name ),
 			function () use ( $sync ) {
 				$syncTask = $sync->start_sync_task();
 				$this->render_status( $syncTask->status );
+				if ( $this->debug ) {
+					Logger::log( $this->status_message( $syncTask->status ) );
+				}
 			}
 		);
 
@@ -160,9 +167,19 @@ class Admin {
 	private function render_status( $status ) {
 		?>
 		<div class="notice notice-success is-dismissible">
-			<p><?php echo esc_html( sprintf( '%d posts successfully created, %d posts successfully  updated, %d posts successfully deleted, %d posts skipped.', $status['created'], $status['updated'], $status['deleted'], $status['skipped'] ) ); ?></p>
+			<p><?php echo esc_html( $this->status_message( $status ) ); ?></p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Format status message.
+	 *
+	 * @param array $status Status counts.
+	 * @return string
+	 */
+	private function status_message( $status ) {
+		return esc_html( sprintf( '%d posts successfully created, %d posts successfully  updated, %d posts successfully deleted, %d posts skipped.', $status['created'], $status['updated'], $status['deleted'], $status['skipped'] ) );
 	}
 
 	/**
