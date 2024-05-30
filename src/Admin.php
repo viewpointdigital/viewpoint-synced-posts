@@ -8,11 +8,18 @@
 namespace Viewpoint\ViewpointSyncedPosts;
 
 use Viewpoint\Utilities\Logger;
+use Viewpoint\Utilities\Settings;
 
 /**
  * Register admin page.
  */
 class Admin {
+	/**
+	 * Settings page.
+	 *
+	 * @var Settings
+	 */
+	private Settings $settings;
 	/**
 	 * Init.
 	 *
@@ -33,34 +40,16 @@ class Admin {
 	 * @return void
 	 */
 	private function init_settings() {
-		// Add ACF settings page.
-		add_action(
-			'acf/init',
-			function () {
-				acf_add_options_page(
-					[
-						'page_title'  => ucwords( $this->name ),
-						'menu_title'  => ucwords( $this->name ),
-						'menu_slug'   => sanitize_title( $this->name ),
-						'parent_slug' => 'options-general.php',
-					]
-				);
-			}
+		// Add ACF settings page, json load and save points.
+		$this->settings = new Settings(
+			slug: sanitize_title( $this->name ),
+			name: ucwords( $this->name ) . ' ' . __( 'Settings' ),
 		);
 
-		// Add sync metabox to settings page.
-		add_action(
-			'acf/input/admin_head',
-			function () {
-				$current_screen = get_current_screen();
-				if ( $current_screen && 'settings_page_' . sanitize_title( $this->name ) === $current_screen->id ) {
-					add_meta_box( 'vp_sync', __( 'Sync', 'viewpoint' ), [ $this, 'render_sync_button' ], 'acf_options_page', 'normal' );
-				}
-			},
-			9999
-		);
+		// Add manual sync button.
+		$this->settings->addMetabox( $this->settings->slug, $this->settings->name, [ $this, 'render_sync_button' ] );
 
-		// Add custom fields to settings page.
+		// Add custom sync fields to settings page.
 		add_action(
 			'acf/include_fields',
 			[ $this, 'init_acf_fields' ]
@@ -90,10 +79,11 @@ class Admin {
 		add_action(
 			'viewpoint_' . sanitize_title( $this->name ),
 			function () use ( $sync ) {
-				$syncTask = $sync->start_sync_task();
-				$this->render_status( $syncTask->status );
+				$syncTask      = $sync->start_sync_task();
+				$statusMessage = $this->status_message( $syncTask->status );
+				$this->settings->renderNotice( '<p>' . $statusMessage . '</p>' );
 				if ( $this->debug ) {
-					Logger::log( $this->status_message( $syncTask->status ) );
+					Logger::log( $statusMessage );
 				}
 			}
 		);
@@ -156,20 +146,6 @@ class Admin {
 		</a>
 		<?php
 		echo wp_kses_post( ob_get_clean() );
-	}
-
-	/**
-	 * Display the admin status notice.
-	 *
-	 * @param array $status Status counts.
-	 * @return void
-	 */
-	private function render_status( $status ) {
-		?>
-		<div class="notice notice-success is-dismissible">
-			<p><?php echo esc_html( $this->status_message( $status ) ); ?></p>
-		</div>
-		<?php
 	}
 
 	/**
