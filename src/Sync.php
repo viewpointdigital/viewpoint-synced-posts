@@ -38,7 +38,7 @@ class Sync {
 	 * @return object[]
 	 */
 	private function set_src_posts() {
-		return $this->endpoint->request( 'get' )->format( 'json', 'data' );
+		return $this->endpoint->request( 'get' );
 	}
 
 	/**

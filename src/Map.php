@@ -8,6 +8,7 @@
 namespace Viewpoint\ViewpointSyncedPosts;
 
 use Viewpoint\Utilities\Singleton;
+use Viewpoint\ViewpointApi\Formatter;
 
 /**
  * Map dest fields to src fields.
@@ -20,6 +21,7 @@ class Map extends Singleton {
 	 * @param string         $post_type     Post type.
 	 * @param string         $post_title    Src title field name.
 	 * @param string         $post_content  Src content field name.
+	 * @param string|false   $post_date     Src published date field name.
 	 * @param string|false   $post_modified Src modified date field name.
 	 * @param array          $post_meta     Src post meta, keyed with dest field name and value of src field name.
 	 * @param array          $taxonomies    Src taxonomies, keyed with dest taxonomy name and value of src field name.
@@ -29,6 +31,7 @@ class Map extends Singleton {
 		public string $post_type,
 		public string $post_title,
 		public string $post_content = '',
+		public string|false $post_date = false,
 		public string|false $post_modified = false,
 		public array $post_meta = [],
 		public array $taxonomies = [],
@@ -44,12 +47,7 @@ class Map extends Singleton {
 	public function get( string $field, object $post_data ) {
 		$field_key = $this->get_field_key( $field );
 
-		// If a nested value defined by .
-		if ( str_contains( $field_key, '.' ) ) {
-			$field_keys = explode( '.', $field_key );
-			return $post_data->{$field_keys[0]}->{$field_keys[1]};
-		}
-		return $post_data->{$field_key};
+		return Formatter::getNestedKeys( $field_key, $post_data );
 	}
 
 	/**

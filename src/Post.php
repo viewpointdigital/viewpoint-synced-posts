@@ -47,6 +47,7 @@ class Post {
 			'post_title'   => $map->get( 'post_title', $post_data ),
 			'post_content' => $map->get( 'post_content', $post_data ),
 			'post_status'  => 'publish',
+			'post_date'    => $map->get( 'post_date', $post_data ),
 		];
 
 		$args['meta_input'] = [
@@ -62,6 +63,14 @@ class Post {
 			$args['tax_input'][ $dest_key ] = $tax_value;
 		}
 
-		return wp_insert_post( $args );
+		$post = wp_insert_post( $args );
+		// Use wp_update_post so we can set the modified time too.
+		return wp_update_post(
+			[
+				'ID'                => $post,
+				'post_modified'     => $map->get( 'post_modified', $post_data ),
+				'post_modified_gmt' => get_gmt_from_date( $map->get( 'post_modified', $post_data ) ),
+			]
+		);
 	}
 }
