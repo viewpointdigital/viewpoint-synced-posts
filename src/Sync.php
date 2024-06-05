@@ -38,7 +38,11 @@ class Sync {
 	 * @return object[]
 	 */
 	private function set_src_posts() {
-		return $this->endpoint->request( 'get' );
+		return apply_filters(
+			'viewpoint_sync_src_posts',
+			$this->endpoint->request( 'get' ),
+			$this->post_type
+		);
 	}
 
 	/**
@@ -47,13 +51,16 @@ class Sync {
 	 * @return int[]
 	 */
 	private function set_dest_posts() {
-		return get_posts(
-			[
-				'post_type'   => $this->post_type,
-				'post_status' => 'any',
-				'numberposts' => -1,
-				'fields'      => 'ids',
-			]
+		return apply_filters(
+			'viewpoint_sync_dest_posts',
+			get_posts(
+				[
+					'post_type'   => $this->post_type,
+					'post_status' => 'any',
+					'numberposts' => -1,
+					'fields'      => 'ids',
+				]
+			)
 		);
 	}
 }
