@@ -7,6 +7,8 @@
 
 namespace Viewpoint\ViewpointSyncedPosts;
 
+use Viewpoint\ViewpointApi\Formatter;
+
 /**
  * Sync task.
  */
@@ -76,8 +78,12 @@ class SyncTask {
 	 * @return void
 	 */
 	private function delete_posts() {
+		$src_post_ids = [];
+		foreach ( $this->src_posts as $src_post ) {
+			$src_post_ids[] = Formatter::getNestedKeys( $this->map->src_id, $src_post );
+		}
 		foreach ( $this->mapped_posts as $src_id => $dest_id ) {
-			if ( ! in_array( $src_id, wp_list_pluck( $this->src_posts, $this->map->src_id ) ) ) {
+			if ( ! in_array( $src_id, $src_post_ids ) ) {
 				$success = Post::delete( $dest_id );
 				if ( $success ) {
 					++$this->status['deleted'];
