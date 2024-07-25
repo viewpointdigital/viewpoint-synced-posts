@@ -192,6 +192,27 @@ class Admin {
 						'default_value' => 60,
 						'step'          => 1,
 					),
+					array(
+						'key'                => 'field_debug_' . sanitize_title( $this->name ),
+						'label'              => 'Debug',
+						'name'               => sanitize_title( $this->name ) . '_debug',
+						'aria-label'         => '',
+						'type'               => 'true_false',
+						'instructions'       => '',
+						'required'           => 0,
+						'conditional_logic'  => 0,
+						'wrapper'            => array(
+							'width' => '',
+							'class' => '',
+							'id'    => '',
+						),
+						'acfbs_allow_search' => 0,
+						'message'            => __( 'Debugging will show hidden post types and taxonomies, skip transient cache of api responses, and log sync and api actions to Query Monitor output.', 'viewpoint' ),
+						'default_value'      => 0,
+						'ui'                 => 1,
+						'ui_on_text'         => '',
+						'ui_off_text'        => '',
+					),
 				),
 				'location' => array(
 					array(
