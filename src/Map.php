@@ -41,10 +41,10 @@ class Map extends Singleton {
 	 * Get dest field value from src post data.
 	 *
 	 * @param string $field     Dest field name.
-	 * @param object $post_data Post data.
+	 * @param object|array $post_data Post data.
 	 * @return mixed
 	 */
-	public function get( string $field, object $post_data ) {
+	public function get( string $field, object|array $post_data ) {
 		$field_key = $this->get_field_key( $field );
 
 		return Formatter::getNestedKeys( $field_key, $post_data );
@@ -68,5 +68,35 @@ class Map extends Singleton {
 		if ( array_key_exists( $field, $this->post_meta ) ) {
 			return $this->post_meta[ $field ];
 		}
+	}
+
+	/**
+	 * Format data to match wp_insert_post().
+	 *
+	 * @param object|array $post_data Raw post data.
+	 * @return array
+	 */
+	public function getInsertPostData( $post_data ) {
+		$args = [
+			'post_type'    => $this->post_type,
+			'post_title'   => $this->get( 'post_title', $post_data ),
+			'post_content' => $this->get( 'post_content', $post_data ),
+			'post_status'  => 'publish',
+			'post_date'    => $this->get( 'post_date', $post_data ),
+		];
+
+		$args['meta_input'] = [
+			'src_id' => $this->get( 'src_id', $post_data ),
+		];
+		foreach ( $this->post_meta as $dest_key => $src_key ) {
+			$args['meta_input'][ $dest_key ] = $this->get( $dest_key, $post_data );
+		}
+
+		$args['tax_input'] = [];
+		foreach ( $this->taxonomies as $dest_key => $src_key ) {
+			$tax_value                      = $this->get( $dest_key, $post_data );
+			$args['tax_input'][ $dest_key ] = $tax_value;
+		}
+		return $args;
 	}
 }

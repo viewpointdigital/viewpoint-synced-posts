@@ -20,18 +20,21 @@ class Admin {
 	 * @var Settings
 	 */
 	private Settings $settings;
+
 	/**
 	 * Init.
 	 *
 	 * @param string $name Namespace.
-	 * @param bool $debug Debug.
+	 * @param bool   $debug Debug.
+	 * @param Sync   $sync Sync.
 	 */
-	public function __construct( private string $name, private bool $debug = false ) {
+	public function __construct( private string $name, private bool $debug = false, private Sync $sync ) {
 		if ( ! function_exists( 'acf_add_options_page' ) ) {
 			return;
 		}
 
 		$this->init_settings();
+		$this->init_sync_triggers();
 	}
 
 	/**
@@ -71,15 +74,14 @@ class Admin {
 	/**
 	 * Initialize sync triggers.
 	 *
-	 * @param Sync $sync Sync.
 	 * @return void
 	 */
-	public function init_sync_triggers( $sync ) {
+	public function init_sync_triggers() {
 		// Do this action to sync.
 		add_action(
 			'viewpoint_' . sanitize_title( $this->name ),
-			function () use ( $sync ) {
-				$syncTask      = $sync->start_sync_task();
+			function () {
+				$syncTask      = $this->sync->start_sync_task();
 				$statusMessage = $this->status_message( $syncTask->status );
 				$this->settings->renderNotice( '<p>' . $statusMessage . '</p>' );
 				if ( $this->debug ) {
@@ -99,7 +101,14 @@ class Admin {
 	 */
 	public function schedule_sync() {
 		if ( false === as_has_scheduled_action( 'viewpoint_' . sanitize_title( $this->name ) ) ) {
-			as_schedule_recurring_action( strtotime( 'today' ), get_field( sanitize_title( $this->name ) . '_schedule', 'option' ) * MINUTE_IN_SECONDS, 'viewpoint_' . sanitize_title( $this->name ), array(), '', true );
+			as_schedule_recurring_action(
+				strtotime( 'today' ),
+				get_field( sanitize_title( $this->name ) . '_schedule', 'option' ) * MINUTE_IN_SECONDS,
+				'viewpoint_' . sanitize_title( $this->name ),
+				array(),
+				'',
+				true
+			);
 		}
 	}
 
@@ -155,7 +164,7 @@ class Admin {
 	 * @return string
 	 */
 	private function status_message( $status ) {
-		return esc_html( sprintf( '%d posts successfully created, %d posts successfully  updated, %d posts successfully deleted, %d posts skipped.', $status['created'], $status['updated'], $status['deleted'], $status['skipped'] ) );
+		return wp_kses_post( sprintf( '%d posts queued for creation, %d posts queued for update, %d posts queued for deletion, %d posts skipped. Check <a href="%s">Scheduled Actions</a> to monitor status.', $status['created'], $status['updated'], $status['deleted'], $status['skipped'], '/wp-admin/tools.php?page=action-scheduler' ) );
 	}
 
 	/**

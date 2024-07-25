@@ -14,13 +14,21 @@ use Viewpoint\ViewpointApi\Endpoint;
  */
 class Sync {
 	/**
+	 * Sync task.
+	 *
+	 * @var SyncTask
+	 */
+	public SyncTask $task;
+
+	/**
 	 * Initialize Sync.
 	 *
 	 * @param string   $post_type WordPress post type slug.
 	 * @param Endpoint $endpoint  Endpoint to call.
 	 * @param Map      $map       Field mappings.
 	 */
-	public function __construct( private string $post_type, private Endpoint $endpoint, private Map $map ) {
+	public function __construct( private string $post_type, private Endpoint $endpoint, public Map $map ) {
+		$this->task = new SyncTask( $this->set_src_posts(), $this->set_dest_posts(), $this->map );
 	}
 
 	/**
@@ -29,7 +37,7 @@ class Sync {
 	 * @return SyncTask
 	 */
 	public function start_sync_task() {
-		return new SyncTask( $this->set_src_posts(), $this->set_dest_posts(), $this->map );
+		return $this->task->sync();
 	}
 
 	/**

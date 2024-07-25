@@ -39,8 +39,7 @@ class SyncTask {
 	 * @param Map   $map        Field mapping.
 	 */
 	public function __construct( public $src_posts = [], public $dest_posts = [], public Map $map ) {
-		$this->mapped_posts = $this->setup_ids();
-		$this->sync();
+		$this->asyncHooks( $map );
 	}
 
 	/**
@@ -48,9 +47,40 @@ class SyncTask {
 	 *
 	 * @return void
 	 */
-	private function sync() {
+	public function sync() {
+		$this->mapped_posts = $this->setup_ids();
 		$this->delete_posts();
 		$this->update_posts();
+		return $this;
+	}
+
+	public function asyncHooks( $map ) {
+		add_action(
+			'viewpoint_' . $map->post_type . '_delete_post',
+			function ( $post_id ) use ( $map ) {
+				Post::delete( $post_id );
+			},
+			10,
+			1
+		);
+
+		add_action(
+			'viewpoint_' . $map->post_type . '_create_post',
+			function ( $post_data ) {
+				Post::create( $post_data );
+			},
+			10,
+			2
+		);
+
+		add_action(
+			'viewpoint_' . $map->post_type . '_update_post',
+			function ( $post_id, $post_data ) {
+				$success = Post::update( $post_id, $post_data );
+			},
+			10,
+			3
+		);
 	}
 
 	/**
@@ -60,13 +90,32 @@ class SyncTask {
 	 */
 	private function setup_ids() {
 		$mapped_posts = [];
+		$exists = [];
 		foreach ( $this->dest_posts as $id ) {
 			$src_id = get_post_meta( $id, 'src_id', true );
 			if ( $src_id ) {
-				$mapped_posts[ $src_id ] = $id;
+				if ( in_array( $src_id, $exists ) ) {
+					// This is a duplicate.
+					++$this->status['deleted'];
+					\as_enqueue_async_action(
+						'viewpoint_' . $this->map->post_type . '_delete_post',
+						[
+							$id,
+						],
+					);
+				} else {
+					$exists[] = $src_id;
+					$mapped_posts[ $src_id ] = $id;
+				}
 			} else {
 				// If it is not mapped to a src post, delete it.
-				Post::delete( $id );
+				++$this->status['deleted'];
+				\as_enqueue_async_action(
+					'viewpoint_' . $this->map->post_type . '_delete_post',
+					[
+						$id,
+					],
+				);
 			}
 		}
 		return $mapped_posts;
@@ -84,10 +133,13 @@ class SyncTask {
 		}
 		foreach ( $this->mapped_posts as $src_id => $dest_id ) {
 			if ( ! in_array( $src_id, $src_post_ids ) ) {
-				$success = Post::delete( $dest_id );
-				if ( $success ) {
-					++$this->status['deleted'];
-				}
+				++$this->status['deleted'];
+				as_enqueue_async_action(
+					'viewpoint_' . $this->map->post_type . '_delete_post',
+					[
+						$dest_id,
+					],
+				);
 			}
 		}
 	}
@@ -101,20 +153,26 @@ class SyncTask {
 		foreach ( $this->src_posts as $src_post ) {
 			$dest_id = array_key_exists( $this->map->get( 'src_id', $src_post ), $this->mapped_posts ) ? $this->mapped_posts[ $this->map->get( 'src_id', $src_post ) ] : false;
 			if ( ! $dest_id ) {
-				$success = Post::create( $src_post, $this->map );
-				if ( $success ) {
-					++$this->status['created'];
-				}
+				++$this->status['created'];
+				as_enqueue_async_action(
+					'viewpoint_' . $this->map->post_type . '_create_post',
+					[
+						$this->map->getInsertPostData( $src_post ),
+					]
+				);
 				continue;
 			}
 			$src_date  = $src_post->{$this->map->post_modified};
 			$dest_date = get_the_modified_date( '', $dest_id );
 			if ( strtotime( $src_date ) > strtotime( $dest_date ) ) {
-				$success = Post::update( $dest_id, $src_post, $this->map );
-				if ( $success ) {
-					++$this->status['updated'];
-					continue;
-				}
+				++$this->status['updated'];
+				as_enqueue_async_action(
+					'viewpoint_' . $this->map->post_type . '_update_post',
+					[
+						$dest_id,
+						$this->map->getInsertPostData( $src_post ),
+					]
+				);
 			}
 			++$this->status['skipped'];
 		}

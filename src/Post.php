@@ -28,48 +28,37 @@ class Post {
 	 * @param Map    $map       Data mapping.
 	 * @return int|false
 	 */
-	public static function create( $post_data, $map ) {
-		return self::update( 0, $post_data, $map );
+	public static function create( $post_data ) {
+		return self::update( 0, $post_data );
 	}
 
 	/**
 	 * Update a post.
 	 *
 	 * @param integer $post_id   Destination Post ID.
-	 * @param object  $post_data Source post data.
-	 * @param Map     $map       Data mapping.
+	 * @param array   $post_data Source post data.
 	 * @return int|false
 	 */
-	public static function update( $post_id = 0, $post_data, $map ) {
-		$args = [
-			'ID'           => $post_id,
-			'post_type'    => $map->post_type,
-			'post_title'   => $map->get( 'post_title', $post_data ),
-			'post_content' => $map->get( 'post_content', $post_data ),
-			'post_status'  => 'publish',
-			'post_date'    => $map->get( 'post_date', $post_data ),
+	public static function update( $post_id = 0, $post_data ) {
+		$defaults  = [
+			'ID'            => $post_id,
+			'post_type'     => 'post',
+			'post_status'   => 'publish',
+			'post_modified' => current_time( 'mysql' ),
 		];
+		$post_data = wp_parse_args( $post_data, $defaults );
 
-		$args['meta_input'] = [
-			'src_id' => $map->get( 'src_id', $post_data ),
-		];
-		foreach ( $map->post_meta as $dest_key => $src_key ) {
-			$args['meta_input'][ $dest_key ] = $map->get( $dest_key, $post_data );
+		$post = wp_insert_post( $post_data );
+
+		foreach ( $post_data['tax_input'] as $tax => $term ) {
+			wp_set_object_terms( $post, $term, $tax, false );
 		}
-
-		$args['tax_input'] = [];
-		foreach ( $map->taxonomies as $dest_key => $src_key ) {
-			$tax_value = $map->get( $dest_key, $post_data );
-			$args['tax_input'][ $dest_key ] = $tax_value;
-		}
-
-		$post = wp_insert_post( $args );
 		// Use wp_update_post so we can set the modified time too.
 		return wp_update_post(
 			[
 				'ID'                => $post,
-				'post_modified'     => $map->get( 'post_modified', $post_data ),
-				'post_modified_gmt' => get_gmt_from_date( $map->get( 'post_modified', $post_data ) ),
+				'post_modified'     => $post_data['post_modified'],
+				'post_modified_gmt' => get_gmt_from_date( $post_data['post_modified'] ),
 			]
 		);
 	}
