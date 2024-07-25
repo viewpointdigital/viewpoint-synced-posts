@@ -45,7 +45,7 @@ class SyncTask {
 	/**
 	 * Sync posts.
 	 *
-	 * @return void
+	 * @return SyncTask
 	 */
 	public function sync() {
 		$this->mapped_posts = $this->setup_ids();
@@ -54,6 +54,12 @@ class SyncTask {
 		return $this;
 	}
 
+	/**
+	 * Register hooks for async action scheduler tasks.
+	 *
+	 * @param Map $map Post data map.
+	 * @return void
+	 */
 	public function asyncHooks( $map ) {
 		add_action(
 			'viewpoint_' . $map->post_type . '_delete_post',
