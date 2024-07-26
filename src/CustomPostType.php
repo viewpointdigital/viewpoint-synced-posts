@@ -47,6 +47,7 @@ class CustomPostType {
 				],
 				'label'    => ucwords( str_replace( [ '_', '-' ], ' ', $this->post_type ) ),
 				'supports' => [ 'title', 'editor', 'custom-fields', 'thumbnail' ],
+				'show_in_rest' => true,
 			]
 		);
 		// Set up taxonomies and tax args.
@@ -68,6 +69,7 @@ class CustomPostType {
 					'show_admin_column'  => $this->debug,
 					'show_in_quick_edit' => $this->debug,
 					'label'              => ucwords( str_replace( [ '_', '-' ], ' ', $taxonomy ) ),
+					'show_in_rest'       => true,
 				]
 			);
 			$this->taxonomies[ $taxonomy ] = $tax_args;
