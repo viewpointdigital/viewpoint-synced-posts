@@ -14,6 +14,19 @@ use Viewpoint\ViewpointApi\Formatter;
  */
 class SyncTask {
 	/**
+	 * Source post data.
+	 *
+	 * @var array
+	 */
+	public $src_posts = [];
+
+	/**
+	 * Destination post IDs.
+	 *
+	 * @var int[]
+	 */
+	public $dest_posts = [];
+	/**
 	 * Mapped post ids: src_id => dest_id.
 	 *
 	 * @var array
@@ -34,32 +47,28 @@ class SyncTask {
 	/**
 	 * Undocumented function
 	 *
-	 * @param array $src_posts  Source post data.
-	 * @param int[] $dest_posts Destination posts.
-	 * @param Map   $map        Field mapping.
+	 * @param Map $map        Field mapping.
 	 */
-	public function __construct( public $src_posts = [], public $dest_posts = [], public Map $map ) {
+	public function __construct( public Map $map ) {
 		$this->asyncHooks( $map );
 	}
 
 	/**
 	 * Sync posts.
 	 *
+	 * @param array $src_posts  Source post data.
+	 * @param int[] $dest_posts Destination posts.
 	 * @return SyncTask
 	 */
-	public function sync() {
+	public function sync( $src_posts = [], $dest_posts = [] ) {
+		$this->src_posts    = $src_posts;
+		$this->dest_posts   = $dest_posts;
 		$this->mapped_posts = $this->setup_ids();
 		$this->delete_posts();
 		$this->update_posts();
 		return $this;
 	}
 
-	/**
-	 * Register hooks for async action scheduler tasks.
-	 *
-	 * @param Map $map Post data map.
-	 * @return void
-	 */
 	public function asyncHooks( $map ) {
 		add_action(
 			'viewpoint_' . $map->post_type . '_delete_post',
@@ -169,8 +178,8 @@ class SyncTask {
 				continue;
 			}
 			$src_date  = $src_post->{$this->map->post_modified};
-			$dest_date = get_the_modified_date( '', $dest_id );
-			if ( strtotime( $src_date ) > strtotime( $dest_date ) ) {
+			$dest_date = get_post_modified_time( 'U', true, $dest_id );
+			if ( strtotime( $src_date ) > $dest_date ) {
 				++$this->status['updated'];
 				as_enqueue_async_action(
 					'viewpoint_' . $this->map->post_type . '_update_post',

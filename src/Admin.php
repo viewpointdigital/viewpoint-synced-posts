@@ -33,8 +33,14 @@ class Admin {
 			return;
 		}
 
-		$this->init_settings();
-		$this->init_sync_triggers();
+		add_action(
+			'init',
+			function () {
+				$this->init_settings();
+				$this->init_sync_triggers();
+			},
+			1
+		);
 	}
 
 	/**

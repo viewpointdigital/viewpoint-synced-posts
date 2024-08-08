@@ -28,7 +28,7 @@ class Sync {
 	 * @param Map      $map       Field mappings.
 	 */
 	public function __construct( private string $post_type, private Endpoint $endpoint, public Map $map ) {
-		$this->task = new SyncTask( $this->set_src_posts(), $this->set_dest_posts(), $this->map );
+		$this->task = new SyncTask( $this->map );
 	}
 
 	/**
@@ -37,7 +37,7 @@ class Sync {
 	 * @return SyncTask
 	 */
 	public function start_sync_task() {
-		return $this->task->sync();
+		return $this->task->sync( $this->set_src_posts(), $this->set_dest_posts() );
 	}
 
 	/**
