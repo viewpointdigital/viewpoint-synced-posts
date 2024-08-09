@@ -41,13 +41,14 @@ class CustomPostType {
 		$this->args = wp_parse_args(
 			$args,
 			[
-				'public'   => $this->debug,
-				'rewrite'  => [
+				'public'             => $this->debug,
+				'rewrite'            => [
 					'with_front' => false,
 				],
-				'label'    => ucwords( str_replace( [ '_', '-' ], ' ', $this->post_type ) ),
-				'supports' => [ 'title', 'editor', 'custom-fields', 'thumbnail' ],
-				'show_in_rest' => true,
+				'label'              => ucwords( str_replace( [ '_', '-' ], ' ', $this->post_type ) ),
+				'supports'           => [ 'title', 'editor', 'custom-fields', 'thumbnail' ],
+				'show_in_rest'       => true,
+				'publicly_queryable' => true,
 			]
 		);
 		// Set up taxonomies and tax args.
@@ -70,6 +71,7 @@ class CustomPostType {
 					'show_in_quick_edit' => $this->debug,
 					'label'              => ucwords( str_replace( [ '_', '-' ], ' ', $taxonomy ) ),
 					'show_in_rest'       => true,
+					'publicly_queryable' => true,
 				]
 			);
 			$this->taxonomies[ $taxonomy ] = $tax_args;
