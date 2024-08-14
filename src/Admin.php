@@ -32,15 +32,8 @@ class Admin {
 		if ( ! function_exists( 'acf_add_options_page' ) ) {
 			return;
 		}
-
-		add_action(
-			'init',
-			function () {
-				$this->init_settings();
-				$this->init_sync_triggers();
-			},
-			1
-		);
+		$this->init_settings();
+		$this->init_sync_triggers();
 	}
 
 	/**
@@ -60,7 +53,7 @@ class Admin {
 
 		// Add custom sync fields to settings page.
 		add_action(
-			'acf/include_fields',
+			'acf/init',
 			[ $this, 'init_acf_fields' ]
 		);
 
