@@ -28,7 +28,7 @@ class Admin {
 	 * @param bool   $debug Debug.
 	 * @param Sync   $sync Sync.
 	 */
-	public function __construct( private string $name, private bool $debug = false, private Sync $sync ) {
+	public function __construct( private string $name, private Sync $sync, private bool $debug = false ) {
 		if ( ! function_exists( 'acf_add_options_page' ) ) {
 			return;
 		}
