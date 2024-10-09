@@ -51,7 +51,8 @@ class Post {
 		$post = wp_insert_post( $post_data );
 
 		foreach ( $post_data['tax_input'] as $tax => $term ) {
-			wp_set_object_terms( $post, $term, $tax, false );
+			$terms = wp_set_object_terms( $post, $term, $tax, false );
+			do_action( 'viewpoint_update_post_terms', $post, $terms, $post_data );
 		}
 		// Use wp_update_post so we can set the modified time too.
 		return wp_update_post(
