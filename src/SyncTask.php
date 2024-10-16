@@ -179,7 +179,8 @@ class SyncTask {
 			}
 			$src_date  = $src_post->{$this->map->post_modified};
 			$dest_date = get_post_modified_time( 'U', true, $dest_id );
-			if ( strtotime( $src_date ) > $dest_date ) {
+			$update    = apply_filters( 'viewpoint_update_post_check', strtotime( $src_date ) > $dest_date, $dest_id, strtotime( $src_date ), $dest_date );
+			if ( $update ) {
 				++$this->status['updated'];
 				as_enqueue_async_action(
 					'viewpoint_' . $this->map->post_type . '_update_post',
