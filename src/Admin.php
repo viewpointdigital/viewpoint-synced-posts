@@ -118,16 +118,15 @@ class Admin {
 	 * @return void
 	 */
 	public function manual_sync() {
-		if ( ! current_user_can( 'manage_options' ) && ( ! wp_doing_ajax() ) ) {
-			wp_die( esc_html__( 'You are not allowed to access this part of the site' ) );
-		}
-
 		$nonce_title = sanitize_title( $this->name ) . '-nonce';
 		if (
 			isset( $_GET[ $nonce_title ] )
 			&&
-			wp_verify_nonce( sanitize_key( $_GET[ $nonce_title ] ), sanitize_title( $this->name ) )
+			check_admin_referer( sanitize_title( $this->name ), $nonce_title )
 		) {
+			if ( ! current_user_can( 'manage_options' ) && ( ! wp_doing_ajax() ) ) {
+				wp_die( esc_html__( 'You are not allowed to access this part of the site' ) );
+			}
 			do_action( 'viewpoint_' . sanitize_title( $this->name ) );
 		}
 	}
