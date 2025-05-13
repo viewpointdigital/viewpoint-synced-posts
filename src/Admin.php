@@ -25,8 +25,8 @@ class Admin {
 	 * Init.
 	 *
 	 * @param string $name Namespace.
-	 * @param bool   $debug Debug.
 	 * @param Sync   $sync Sync.
+	 * @param bool   $debug Debug.
 	 */
 	public function __construct( private string $name, private Sync $sync, private bool $debug = false ) {
 		if ( ! function_exists( 'acf_add_options_page' ) ) {
@@ -46,6 +46,7 @@ class Admin {
 		$this->settings = new Settings(
 			slug: sanitize_title( $this->name ),
 			name: ucwords( $this->name ) . ' ' . __( 'Settings' ),
+			capability: 'manage_options',
 		);
 
 		// Add manual sync button.
