@@ -61,8 +61,8 @@ class SyncTask {
 	 * @return SyncTask
 	 */
 	public function sync( $src_posts = [], $dest_posts = [] ) {
-		$this->src_posts    = $src_posts;
-		$this->dest_posts   = $dest_posts;
+		$this->src_posts    = is_array( $src_posts ) ? $src_posts : [];
+		$this->dest_posts   = is_array( $dest_posts ) ? $src_posts : [];
 		$this->mapped_posts = $this->setup_ids();
 		$this->delete_posts();
 		$this->update_posts();
