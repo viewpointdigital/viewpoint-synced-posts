@@ -25,10 +25,11 @@ class Admin {
 	 * Init.
 	 *
 	 * @param string $name Namespace.
+	 * @param string $label Label.
 	 * @param Sync   $sync Sync.
 	 * @param bool   $debug Debug.
 	 */
-	public function __construct( private string $name, private Sync $sync, private bool $debug = false ) {
+	public function __construct( private string $name, private string $label, private Sync $sync, private bool $debug = false ) {
 		if ( ! function_exists( 'acf_add_options_page' ) ) {
 			return;
 		}
@@ -45,7 +46,7 @@ class Admin {
 		// Add ACF settings page, json load and save points.
 		$this->settings = new Settings(
 			slug: sanitize_title( $this->name ),
-			name: ucwords( $this->name ) . ' ' . __( 'Settings' ),
+			name: ucwords( $this->label ) . ' ' . __( 'Settings' ),
 			capability: 'manage_options',
 		);
 
@@ -148,7 +149,7 @@ class Admin {
 			printf(
 				/* translators: %s: Button label. */
 				esc_html__( 'Run %s', 'viewpoint' ),
-				esc_html( ucwords( $this->name ) )
+				esc_html( ucwords( $this->label ) )
 			);
 			?>
 		</a>
@@ -179,7 +180,7 @@ class Admin {
 		acf_add_local_field_group(
 			array(
 				'key'      => 'group_' . sanitize_title( $this->name ),
-				'title'    => 'Options: ' . $this->name,
+				'title'    => 'Options: ' . $this->label,
 				'fields'   => array(
 					array(
 						'key'           => 'field_schedule_' . sanitize_title( $this->name ),

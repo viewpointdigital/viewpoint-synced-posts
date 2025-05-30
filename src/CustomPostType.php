@@ -22,7 +22,7 @@ class CustomPostType {
 	public function __construct(
 		public string $post_type,
 		public array $taxonomies = [],
-		private array $args = [],
+		public array $args = [],
 		public bool $debug = false
 	) {
 		$this->initialize_args( $args, $taxonomies );
