@@ -41,7 +41,16 @@ class App {
 		public Map $map,
 		public bool $debug = false,
 	) {
-		$this->sync  = new Sync( $this->cpt->post_type, $this->endpoint, $this->map );
-		$this->admin = new Admin( $this->cpt->post_type, $this->cpt->args['label'] . ' ' . __( 'Sync', 'viewpoint' ), $this->sync, $this->debug );
+		$this->sync  = new Sync(
+			$this->cpt->post_type,
+			$this->endpoint,
+			$this->map
+		);
+		$this->admin = new Admin(
+			$this->cpt->post_type,
+			$this->cpt->args['label'] . ' ' . __( 'Sync', 'viewpoint' ),
+			$this->sync,
+			$this->debug
+		);
 	}
 }

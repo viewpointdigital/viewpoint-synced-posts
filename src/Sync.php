@@ -27,7 +27,11 @@ class Sync {
 	 * @param Endpoint $endpoint  Endpoint to call.
 	 * @param Map      $map       Field mappings.
 	 */
-	public function __construct( private string $post_type, private Endpoint $endpoint, public Map $map ) {
+	public function __construct(
+		private string $post_type,
+		private Endpoint $endpoint,
+		public Map $map
+	) {
 		$this->task = new SyncTask( $this->map );
 	}
 
@@ -48,7 +52,7 @@ class Sync {
 	private function set_src_posts() {
 		return apply_filters(
 			'viewpoint_sync_src_posts',
-			$this->endpoint->request( 'get' ),
+			$this->endpoint->request(),
 			$this->post_type
 		);
 	}
