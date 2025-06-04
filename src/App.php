@@ -8,6 +8,7 @@
 namespace Viewpoint\ViewpointSyncedPosts;
 
 use Viewpoint\ViewpointApi\Endpoint;
+use Viewpoint\ViewpointApi\JoinEndpoint;
 
 /**
  * Define App.
@@ -30,14 +31,14 @@ class App {
 	/**
 	 * Constructor.
 	 *
-	 * @param CustomPostType $cpt Post type.
-	 * @param Endpoint       $endpoint  Endpoint interface.
-	 * @param Map            $map       Field mapping.
-	 * @param boolean        $debug     Debug.
+	 * @param CustomPostType        $cpt Post type.
+	 * @param Endpoint|JoinEndpoint $endpoint  Endpoint interface.
+	 * @param Map                   $map       Field mapping.
+	 * @param boolean               $debug     Debug.
 	 */
 	public function __construct(
 		public CustomPostType $cpt,
-		public Endpoint $endpoint,
+		public Endpoint|JoinEndpoint $endpoint,
 		public Map $map,
 		public bool $debug = false,
 	) {

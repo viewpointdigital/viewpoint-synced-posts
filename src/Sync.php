@@ -8,6 +8,7 @@
 namespace Viewpoint\ViewpointSyncedPosts;
 
 use Viewpoint\ViewpointApi\Endpoint;
+use Viewpoint\ViewpointApi\JoinEndpoint;
 
 /**
  * Sync
@@ -29,7 +30,7 @@ class Sync {
 	 */
 	public function __construct(
 		private string $post_type,
-		private Endpoint $endpoint,
+		private Endpoint|JoinEndpoint $endpoint,
 		public Map $map
 	) {
 		$this->task = new SyncTask( $this->map );
