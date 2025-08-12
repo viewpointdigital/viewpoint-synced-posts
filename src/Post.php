@@ -54,6 +54,7 @@ class Post {
 			$terms = wp_set_object_terms( $post, $term, $tax, false );
 			do_action( 'viewpoint_update_post_terms', $post, $terms, $post_data );
 		}
+		do_action( 'viewpoint_post_updated', $post, $post_data );
 		// Use wp_update_post so we can set the modified time too.
 		return wp_update_post(
 			[
