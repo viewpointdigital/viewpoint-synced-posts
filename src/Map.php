@@ -20,7 +20,7 @@ class Map extends Singleton {
 	 * @param integer|string $src_id        Src ID field name.
 	 * @param string         $post_type     Post type.
 	 * @param string         $post_title    Src title field name.
-	 * @param string         $post_content  Src content field name.
+	 * @param string|array         $post_content  Src content field name.
 	 * @param string|false   $post_date     Src published date field name.
 	 * @param string|false   $post_modified Src modified date field name.
 	 * @param array          $post_meta     Src post meta, keyed with dest field name and value of src field name.
@@ -30,7 +30,7 @@ class Map extends Singleton {
 		public int|string $src_id,
 		public string $post_type,
 		public string $post_title,
-		public string $post_content = '',
+		public string|array $post_content = '',
 		public string|false $post_date = false,
 		public string|false $post_modified = false,
 		public array $post_meta = [],
