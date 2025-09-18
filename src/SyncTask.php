@@ -105,7 +105,7 @@ class SyncTask {
 	 */
 	private function setup_ids() {
 		$mapped_posts = [];
-		$exists = [];
+		$exists       = [];
 		foreach ( $this->dest_posts as $id ) {
 			$src_id = get_post_meta( $id, 'src_id', true );
 			if ( $src_id ) {
