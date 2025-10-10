@@ -66,6 +66,14 @@ class SyncTask {
 		$this->mapped_posts = $this->setup_ids();
 		$this->delete_posts();
 		$this->update_posts();
+		// Register sync complete hook.
+		as_enqueue_async_action(
+			'viewpoint_sync_complete',
+			[],
+			'',
+			false,
+			200
+		);
 		return $this;
 	}
 
@@ -95,6 +103,20 @@ class SyncTask {
 			},
 			10,
 			3
+		);
+
+		/**
+		 * Clear WP REST API cache.
+		 */
+		add_action(
+			'viewpoint_sync_complete',
+			function () {
+				if ( is_plugin_active( 'wp-rest-cache/wp-rest-cache.php' ) ) {
+					$caching = \WP_Rest_Cache_Plugin\Includes\Caching\Caching::get_instance();
+					$caching->delete_all_caches( false );
+				}
+				return true;
+			}
 		);
 	}
 
