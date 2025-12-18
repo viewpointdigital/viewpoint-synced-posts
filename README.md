@@ -42,7 +42,7 @@ Add the library to your plugin's `composer.json`:
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://bitbucket.org/viewpointdigital/viewpoint-synced-posts.git"
+      "url": "https://github.com/viewpointdigital/viewpoint-synced-posts.git"
     }
   ]
 }
@@ -533,4 +533,4 @@ This library is proprietary software developed by Viewpoint Digital.
 
 **Author:** Jeremy Lind (jeremy@viewpointdigital.ca)
 **Maintainer:** Viewpoint Digital
-**Repository:** https://bitbucket.org/viewpointdigital/viewpoint-synced-posts
+**Repository:** https://github.com/viewpointdigital/viewpoint-synced-posts
