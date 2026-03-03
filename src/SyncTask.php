@@ -89,8 +89,11 @@ class SyncTask {
 
 		add_action(
 			'viewpoint_' . $map->post_type . '_create_post',
-			function ( $post_data ) {
-				Post::create( $post_data );
+			function ( $store_key ) {
+				$post_data = $this->retrieve_post_data( $store_key );
+				if ( $post_data ) {
+					Post::create( $post_data );
+				}
 			},
 			10,
 			2
@@ -98,8 +101,11 @@ class SyncTask {
 
 		add_action(
 			'viewpoint_' . $map->post_type . '_update_post',
-			function ( $post_id, $post_data ) {
-				$success = Post::update( $post_id, $post_data );
+			function ( $post_id, $store_key ) {
+				$post_data = $this->retrieve_post_data( $store_key );
+				if ( $post_data ) {
+					Post::update( $post_id, $post_data );
+				}
 			},
 			10,
 			3
@@ -190,11 +196,12 @@ class SyncTask {
 		foreach ( $this->src_posts as $src_post ) {
 			$dest_id = array_key_exists( $this->map->get( 'src_id', $src_post ), $this->mapped_posts ) ? $this->mapped_posts[ $this->map->get( 'src_id', $src_post ) ] : false;
 			if ( ! $dest_id ) {
+				$store_key = $this->store_post_data( $src_post );
 				++$this->status['created'];
 				as_enqueue_async_action(
 					'viewpoint_' . $this->map->post_type . '_create_post',
 					[
-						$this->map->getInsertPostData( $src_post ),
+						$store_key,
 					]
 				);
 				continue;
@@ -203,17 +210,42 @@ class SyncTask {
 			$dest_date = get_post_modified_time( 'U', true, $dest_id );
 			$update    = apply_filters( 'viewpoint_update_post_check', strtotime( $src_date ) > $dest_date, $dest_id, strtotime( $src_date ), $dest_date );
 			if ( $update ) {
+				$store_key = $this->store_post_data( $src_post );
 				++$this->status['updated'];
 				as_enqueue_async_action(
 					'viewpoint_' . $this->map->post_type . '_update_post',
 					[
 						$dest_id,
-						$this->map->getInsertPostData( $src_post ),
+						$store_key,
 					]
 				);
 				continue;
 			}
 			++$this->status['skipped'];
 		}
+	}
+
+	/**
+	 * Store post data in a transient for retrieval by Action Scheduler when task is run. Some post data is too big to store as args in Action Scheduler.
+	 *
+	 * @param object $src_post Source post data.
+	 * @return string
+	 */
+	private function store_post_data( $src_post ) {
+		$src_post_key = 'scheduled_post_' . uniqid();
+		set_transient( $src_post_key, $this->map->getInsertPostData( $src_post ), HOUR_IN_SECONDS );
+		return $src_post_key;
+	}
+
+	/**
+	 * Retrieve stored post data from a transient.
+	 *
+	 * @param string $store_key Tranient key.
+	 * @return object
+	 */
+	private function retrieve_post_data( $store_key ) {
+		$post_data = get_transient( $store_key );
+		delete_transient( $store_key );
+		return $post_data;
 	}
 }
