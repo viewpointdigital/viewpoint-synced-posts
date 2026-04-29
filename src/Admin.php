@@ -29,7 +29,7 @@ class Admin {
 	 * @param Sync   $sync Sync.
 	 * @param bool   $debug Debug.
 	 */
-	public function __construct( private string $name, private string $label, private Sync $sync, private bool $debug = false ) {
+	public function __construct( public string $name, public string $label, private Sync $sync, private bool $debug = false ) {
 		if ( ! function_exists( 'acf_add_options_page' ) ) {
 			return;
 		}
@@ -54,10 +54,13 @@ class Admin {
 		$this->settings->addMetabox( $this->settings->slug, $this->settings->name, [ $this, 'render_sync_button' ] );
 
 		// Add custom sync fields to settings page.
-		add_action(
-			'acf/init',
-			[ $this, 'init_acf_fields' ]
-		);
+		if ( apply_filters( 'viewpoint_init_settings_fields', true, $this ) ) {
+			add_action(
+				'acf/init',
+				[ $this, 'init_acf_fields' ]
+			);
+		}
+		do_action( 'viewpoint_custom_settings_fields', $this );
 
 		// Clear action scheduler when settings are updated.
 		add_action(
