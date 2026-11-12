@@ -107,13 +107,30 @@ class Admin {
 		if ( false === as_has_scheduled_action( 'viewpoint_' . sanitize_title( $this->name ) ) ) {
 			as_schedule_recurring_action(
 				strtotime( 'today' ),
-				get_field( sanitize_title( $this->name ) . '_schedule', 'option' ) * MINUTE_IN_SECONDS,
+				$this->get_schedule_interval(),
 				'viewpoint_' . sanitize_title( $this->name ),
 				array(),
 				'',
 				true
 			);
 		}
+	}
+
+	/**
+	 * Get the sync interval in seconds.
+	 *
+	 * Falls back to a default when no schedule is saved. An empty interval makes Action Scheduler
+	 * schedule a single action instead of a recurring one, which re-runs the sync on every queue run.
+	 *
+	 * @return int
+	 */
+	public function get_schedule_interval() {
+		$minutes = (int) get_field( sanitize_title( $this->name ) . '_schedule', 'option' );
+		$minutes = (int) apply_filters( 'viewpoint_sync_schedule', $minutes, $this );
+		if ( $minutes < 1 ) {
+			$minutes = (int) apply_filters( 'viewpoint_default_sync_schedule', 60, $this );
+		}
+		return max( 1, $minutes ) * MINUTE_IN_SECONDS;
 	}
 
 	/**
