@@ -42,7 +42,7 @@ class Post {
 		$defaults  = [
 			'ID'            => $post_id,
 			'post_type'     => 'post',
-			'post_status'   => 'publish',
+			'post_status'   => 'draft',
 			'post_modified' => current_time( 'mysql' ),
 		];
 		$post_data = wp_parse_args( $post_data, $defaults );

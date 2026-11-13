@@ -23,7 +23,7 @@ class Map extends Singleton {
 	 * @param string|array   $post_content  Src content field name.
 	 * @param string|false   $post_date     Src published date field name.
 	 * @param string|false   $post_modified Src modified date field name.
-	 * @param string         $post_status   Post status.
+	 * @param string|false   $post_status   Src post status field name. Posts are saved as drafts when false.
 	 * @param array          $post_meta     Src post meta, keyed with dest field name and value of src field name.
 	 * @param array          $taxonomies    Src taxonomies, keyed with dest taxonomy name and value of src field name.
 	 */
@@ -34,7 +34,7 @@ class Map extends Singleton {
 		public string|array $post_content = '',
 		public string|false $post_date = false,
 		public string|false $post_modified = false,
-		public string $post_status = 'publish',
+		public string|false $post_status = false,
 		public array $post_meta = [],
 		public array $taxonomies = [],
 	) {}
@@ -83,7 +83,7 @@ class Map extends Singleton {
 			'post_type'    => $this->post_type,
 			'post_title'   => $this->get( 'post_title', $post_data ),
 			'post_content' => $this->get( 'post_content', $post_data ),
-			'post_status'  => $this->get( 'post_status', $post_data ),
+			'post_status'  => $this->post_status ? $this->get( 'post_status', $post_data ) : 'draft',
 			'post_date'    => $this->get( 'post_date', $post_data ),
 		];
 
