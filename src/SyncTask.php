@@ -208,7 +208,7 @@ class SyncTask {
 			}
 			$src_date  = isset( $src_post->{$this->map->post_modified} ) ? $src_post->{$this->map->post_modified} : current_time( 'Y-m-d H:i:s', true );
 			$dest_date = get_post_modified_time( 'U', true, $dest_id );
-			$update    = apply_filters( 'viewpoint_update_post_check', strtotime( $src_date ) > $dest_date, $dest_id, strtotime( $src_date ), $dest_date );
+			$update    = apply_filters( 'viewpoint_update_post_check', strtotime( $src_date ) > $dest_date, $dest_id, strtotime( $src_date ), $dest_date, $src_post, $this->map );
 			if ( $update ) {
 				$store_key = $this->store_post_data( $src_post );
 				++$this->status['updated'];
